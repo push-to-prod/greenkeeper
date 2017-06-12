@@ -62,7 +62,7 @@
     "db:start": "./start-couchdb",
     "dep:start": "docker-compose up -d",
     "deploy": "./deploy",
-    "pretest": "standard && npm run db:start",
+    "pretest": "standard && db:start",
     "start": "node index.js",
     "test": "NODE_ENV=testing nyc tap test"
   },
