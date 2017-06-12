@@ -65,13 +65,15 @@ require('./lib/rollbar')
 
   async function consume (job) {
     const data = JSON.parse(job.content.toString())
+    console.log('job data', data)
 
     if (data.name === 'registry-change' || data.name === 'stripe-event') return queues[data.name].add(() => worker(job))
 
     let queueId = Number(data.accountId) ||
       _.get(data, 'repository.owner.id') ||
       _.get(data, 'installation.account.id') ||
-      _.get(data, 'organization.id')
+      _.get(data, 'organization.id') ||
+      _.get(data, 'repository.owner.uuid') // bitbucket specific
 
     if (!queueId) {
       const login = _.get(data, 'repository.owner.name')
