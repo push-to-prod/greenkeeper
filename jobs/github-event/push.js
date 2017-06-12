@@ -8,7 +8,7 @@ const deleteBranches = require('../../lib/delete-branches')
 
 module.exports = async function (data) {
   const { repositories } = await dbs()
-  const { after, repository, installation } = data
+  const { after, repository } = data
 
   const branchRef = `refs/heads/${repository.default_branch}`
   if (!data.head_commit || data.ref !== branchRef) return
