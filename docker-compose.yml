@@ -1,0 +1,14 @@
+version: '3'
+services:
+  redis:
+    image: 'redis:3.2.9'
+    ports:
+      - '6379:6379'
+  couchdb:
+    image: 'klaemo/couchdb:2.0.0'
+    ports:
+      - '5984:5984'
+  rabbitmq:
+    image: 'rafakato/rabbitmq-delayed-message-exchange'
+    ports:
+      - '5672:5672'

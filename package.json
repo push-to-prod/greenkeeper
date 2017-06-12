@@ -60,6 +60,7 @@
   "scripts": {
     "format": "prettier-standard-formatter jobs lib test",
     "db:start": "./start-couchdb",
+    "dep:start": "docker-compose up -d",
     "deploy": "./deploy",
     "pretest": "standard && npm run db:start",
     "start": "node index.js",
