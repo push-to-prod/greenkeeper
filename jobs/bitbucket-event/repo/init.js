@@ -1,19 +1,29 @@
-const dbs = require('../../lib/dbs')
+const crypto = require('crypto')
+const dbs = require('../../../lib/dbs')
+const statsd = require('../../../lib/statsd')
+const _ = require('lodash')
 
-module.exports = async function ({ installation, repositories_added }) {
+const { createDocs } = require('../../..//lib/repository-docs')
+
+module.exports = async function (data) {
+  if (!data) {
+    return
+  }
+
   const { repositories: reposDb } = await dbs()
-  if (!repositories_added.length) return
 
-  const repositories = await Promise.mapSeries(repositories_added, doc => {
-    const [owner, repo] = doc.full_name.split('/')
-    return GithubQueue(installation.id).read(github => github.repos.get({ owner, repo }))
-  })
-
-  statsd.increment('repositories', repositories.length)
+  statsd.increment('repositories', 1)
 
   const repoDocs = await createDocs({
-    repositories,
-    accountId: String(installation.account.id)
+    repositories: [
+      {
+        id: data.uuid,
+        full_name: data.full_name,
+        fork: false,
+        hasIssues: false
+      }
+    ],
+    accountId: String(data.repository.owner.uuid)
   })
 
   // saving installation repos to db
@@ -21,11 +31,11 @@ module.exports = async function ({ installation, repositories_added }) {
 
   // scheduling create-initial-branch jobs
   return _(repoDocs)
-    .map(repository => ({
+    .map(repoDoc => ({
       data: {
         name: 'create-initial-branch',
-        repositoryId: repository._id,
-        accountId: repository.accountId
+        repositoryId: repoDoc._id,
+        accountId: repoDoc.accountId
       }
     }))
     .value()

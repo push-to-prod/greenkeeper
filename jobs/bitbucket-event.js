@@ -4,6 +4,7 @@ module.exports = function ({ type, action }) {
   const paths = [__dirname, 'bitbucket-event', type]
   if (action) paths.push(action)
   const requirePath = resolve(...paths)
+
   if (!requirePath.startsWith(__dirname)) {
     throw new Error('do not escape jobs folder')
   }
