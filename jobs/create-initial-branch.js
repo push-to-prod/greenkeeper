@@ -25,8 +25,13 @@ const upsert = require('../lib/upsert')
 const registryUrl = env.NPM_REGISTRY
 
 module.exports = async function ({ repositoryId }) {
+  console.log('repo id', repositoryId)
+
   const { installations, repositories } = await dbs()
   const repoDoc = await repositories.get(repositoryId)
+
+  console.log(repoDoc)
+
   const accountId = repoDoc.accountId
   const installation = await installations.get(accountId)
   const installationId = installation.installation
