@@ -43,6 +43,8 @@ module.exports = async function ({ repositoryId }) {
 
   if (repoDoc.fork && !repoDoc.hasIssues) return
 
+  console.log('packages', repoDoc.packages)
+
   //await updateRepoDoc(installationId, repoDoc)
   if (!_.get(repoDoc, ['packages', 'package.json'])) return
   //await upsert(repositories, repoDoc._id, repoDoc)
@@ -52,7 +54,7 @@ module.exports = async function ({ repositoryId }) {
   const pkg = _.get(repoDoc, ['packages', 'package.json'])
   if (!pkg) return
 
-  console.log('pkg')
+  console.log('pkg', pkg)
 
   const [owner, repo] = repoDoc.fullName.split('/')
 

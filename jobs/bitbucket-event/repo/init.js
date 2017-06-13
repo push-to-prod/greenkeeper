@@ -4,7 +4,9 @@ const statsd = require('../../../lib/statsd')
 const _ = require('lodash')
 const upsert = require('../../../lib/upsert')
 
-const { createDocs } = require('../../..//lib/repository-docs')
+const { createDocs } = require('../../../lib/repository-docs')
+
+const bitbucket = require('../../../lib/bitbucket')
 
 module.exports = async function (data) {
   if (!data) {
@@ -15,7 +17,12 @@ module.exports = async function (data) {
 
   statsd.increment('repositories', 1)
 
-  console.log(data)
+  const rawPackage = await bitbucket.file.get(
+    data.projectName, data.repoName, 'master', 'package.json')
+
+  const parsedPackage = JSON.parse(rawPackage)
+
+  console.log('parsed package', parsedPackage)
 
   // create repository document
   const repoDocs = await createDocs({
@@ -25,7 +32,10 @@ module.exports = async function (data) {
           id: data.uuid,
           full_name: data.full_name,
           fork: false,
-          hasIssues: false
+          hasIssues: false,
+          packages: {
+            'package.json': parsedPackage
+          }
         },
         data
       )
@@ -33,7 +43,7 @@ module.exports = async function (data) {
     accountId: String(data.repository.owner.uuid)
   })
 
-  console.log('repodocs', repoDocs)
+  console.log(repoDocs)
 
   // hack: also create an "installation"
   await upsert(
