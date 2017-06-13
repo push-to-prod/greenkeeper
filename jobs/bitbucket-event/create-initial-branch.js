@@ -30,6 +30,8 @@ const createBranch = require('../../lib/bitbucket/create-branch')
 const fs = require('fs')
 const tempy = require('tempy')
 
+const gkInitialBranchName = 'greenkeeper/initial'
+
 module.exports = async function ({ repositoryId }) {
   console.log('handling create branch!')
 
@@ -109,11 +111,19 @@ module.exports = async function ({ repositoryId }) {
     .filter(Boolean)
     .value()
 
+
+  // update package.json
+
+  dependencies.forEach(({ type, name, newVersion }) => {
+    if (!_.get(pkg, [type, name])) return
+
+    pkg[type][name] = newVersion
+  })
+
   await createBranch({
     ownerId: accountId,
-    newBranch: 'greenkeeper/initial',
+    newBranch: gkInitialBranchName,
     oldBranch: 'master',
-    packageJson: pkg,
     message: 'Hi Mabry',
     repoName,
     projectName
@@ -123,13 +133,13 @@ module.exports = async function ({ repositoryId }) {
   const tempFile = `${tempDir}/package.json`
 
   // super hack, rip
-  const tempFileLocation = tempy.file({ extension: 'json'})
+  //const tempFileLocation = tempy.file({ extension: 'json'})
   fs.writeFileSync(tempFile, JSON.stringify(pkg, null, 2), 'utf8')
 
   const files = [
     {
       repoLocation: 'package.json',
-      localLocation: tempFileLocation
+      localLocation: tempFile
     }
   ]
 
@@ -138,7 +148,7 @@ module.exports = async function ({ repositoryId }) {
     file: tempFile,
     projectName,
     slug: repoName,
-    branch: 'greenkeeper/initial',
+    branch: gkInitialBranchName,
     files
   })
 }
