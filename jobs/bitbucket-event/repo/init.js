@@ -30,7 +30,7 @@ module.exports = async function (data) {
       Object.assign(
         {
           id: data.uuid,
-          full_name: data.full_name,
+          full_name: `${data.projectName}/${data.repoName}`,
           fork: false,
           hasIssues: false,
           packages: {

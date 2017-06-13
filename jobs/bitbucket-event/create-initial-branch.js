@@ -56,9 +56,10 @@ module.exports = async function ({ repositoryId }) {
 
   console.log('pkg', pkg)
 
+  console.log(repoDoc)
   const [owner, repo] = repoDoc.fullName.split('/')
 
-  await createDefaultLabel({ installationId, owner, repo, name: config.label })
+  //await createDefaultLabel({ installationId, owner, repo, name: config.label })
 
   const registry = RegClient()
   const registryGet = promisify(registry.get.bind(registry))
