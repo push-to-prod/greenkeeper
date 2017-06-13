@@ -15,7 +15,6 @@ const env = require('../../lib/env')
 const getRangedVersion = require('../../lib/get-ranged-version')
 const dbs = require('../../lib/dbs')
 const getConfig = require('../../lib/get-config')
-const createBranch = require('../../lib/create-branch')
 const statsd = require('../../lib/statsd')
 const { updateRepoDoc } = require('../../lib/repository-docs')
 const githubQueue = require('../../lib/github-queue')
@@ -26,24 +25,20 @@ const registryUrl = env.NPM_REGISTRY
 
 const bitbucket = require('../../lib/bitbucket')
 
+const createBranch = require('../../lib/bitbucket/create_branch')
+
 module.exports = async function ({ repositoryId }) {
-  console.log('repo id', repositoryId)
+  console.log('handling create branch!')
 
   const { installations, repositories } = await dbs()
   const repoDoc = await repositories.get(repositoryId)
 
-  console.log(repoDoc)
-
   const accountId = repoDoc.accountId
   const installation = await installations.get(accountId)
-
-  console.log('installation', installation)
 
   const installationId = installation.installation
 
   if (repoDoc.fork && !repoDoc.hasIssues) return
-
-  console.log('packages', repoDoc.packages)
 
   //await updateRepoDoc(installationId, repoDoc)
   if (!_.get(repoDoc, ['packages', 'package.json'])) return
@@ -56,8 +51,7 @@ module.exports = async function ({ repositoryId }) {
 
   console.log('pkg', pkg)
 
-  console.log(repoDoc)
-  const [owner, repo] = repoDoc.fullName.split('/')
+  const [projectName, repoName] = repoDoc.fullName.split('/')
 
   //await createDefaultLabel({ installationId, owner, repo, name: config.label })
 
@@ -75,8 +69,6 @@ module.exports = async function ({ repositoryId }) {
       return dep
     } catch (err) {}
   })
-
-  console.log('deps', dependencies)
 
   dependencies = _(dependencies)
     .filter(Boolean)
@@ -116,5 +108,13 @@ module.exports = async function ({ repositoryId }) {
     .filter(Boolean)
     .value()
 
-  console.log(dependencies)
+  await createBranch({
+    ownerId: accountId,
+    newBranch: 'greenkeeper/initial',
+    oldBranch: 'master',
+    packageJson: pkg,
+    message: 'Hi Mabry',
+    repoName,
+    projectName
+  })
 }
