@@ -25,7 +25,10 @@ const registryUrl = env.NPM_REGISTRY
 
 const bitbucket = require('../../lib/bitbucket')
 
-const createBranch = require('../../lib/bitbucket/create_branch')
+const createBranch = require('../../lib/bitbucket/create-branch')
+
+const fs = require('fs')
+const tempy = require('tempy')
 
 module.exports = async function ({ repositoryId }) {
   console.log('handling create branch!')
@@ -48,8 +51,6 @@ module.exports = async function ({ repositoryId }) {
   if (config.disabled) return
   const pkg = _.get(repoDoc, ['packages', 'package.json'])
   if (!pkg) return
-
-  console.log('pkg', pkg)
 
   const [projectName, repoName] = repoDoc.fullName.split('/')
 
@@ -116,5 +117,23 @@ module.exports = async function ({ repositoryId }) {
     message: 'Hi Mabry',
     repoName,
     projectName
+  })
+
+  // super hack, rip
+  const tempFileLocation = tempy.file({ extension: 'json'})
+  fs.writeFileSync(tempFileLocation, JSON.stringify(pkg, null, 2), 'utf8')
+
+  const files = [
+    {
+      repoLocation: 'package.json',
+      localLocation: tempFileLocation
+    }
+  ]
+
+  await bitbucket.commit.create({
+    projectName,
+    slug: repoName,
+    branch: 'greenkeeper/initial',
+    files
   })
 }
