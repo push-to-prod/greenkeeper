@@ -119,9 +119,12 @@ module.exports = async function ({ repositoryId }) {
     projectName
   })
 
+  const tempDir = tempy.directory()
+  const tempFile = `${tempDir}/package.json`
+
   // super hack, rip
   const tempFileLocation = tempy.file({ extension: 'json'})
-  fs.writeFileSync(tempFileLocation, JSON.stringify(pkg, null, 2), 'utf8')
+  fs.writeFileSync(tempFile, JSON.stringify(pkg, null, 2), 'utf8')
 
   const files = [
     {
@@ -131,6 +134,8 @@ module.exports = async function ({ repositoryId }) {
   ]
 
   await bitbucket.commit.create({
+    tempDir,
+    file: tempFile,
     projectName,
     slug: repoName,
     branch: 'greenkeeper/initial',
