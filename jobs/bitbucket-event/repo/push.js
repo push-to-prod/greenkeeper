@@ -24,6 +24,4 @@ module.exports = async function (data) {
   }
 
   const after = latestChange.hash
-
-  const {}
 }
