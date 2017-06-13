@@ -24,6 +24,8 @@ const upsert = require('../../lib/upsert')
 
 const registryUrl = env.NPM_REGISTRY
 
+const bitbucket = require('../../lib/bitbucket')
+
 module.exports = async function ({ repositoryId }) {
   console.log('repo id', repositoryId)
 
