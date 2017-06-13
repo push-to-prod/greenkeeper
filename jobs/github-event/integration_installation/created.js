@@ -32,6 +32,8 @@ module.exports = async function ({ installation }) {
   })
   let { repositories } = res.data
 
+  console.log(repositories)
+
   while (github.hasNextPage(res)) {
     res = await github.getNextPage(res)
     repositories = repositories.concat(res.data.repositories)

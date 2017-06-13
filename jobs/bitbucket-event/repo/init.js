@@ -15,28 +15,35 @@ module.exports = async function (data) {
 
   statsd.increment('repositories', 1)
 
+  console.log(data)
+
   // create repository document
   const repoDocs = await createDocs({
     repositories: [
-      {
-        id: data.uuid,
-        full_name: data.full_name,
-        fork: false,
-        hasIssues: false
-      }
+      Object.assign(
+        {
+          id: data.uuid,
+          full_name: data.full_name,
+          fork: false,
+          hasIssues: false
+        },
+        data
+      )
     ],
     accountId: String(data.repository.owner.uuid)
   })
 
+  console.log('repodocs', repoDocs)
+
   // hack: also create an "installation"
   await upsert(
     installations,
-    docId,
-    Object.assign({
+    data.repository.owner.uuid,
+    {
       installation: data.repository.owner.uuid,
       login: 'someorg', // todo: Remove
       type: 'User'
-    })
+    }
   )
 
   // saving installation repos to db
@@ -46,7 +53,8 @@ module.exports = async function (data) {
   return _(repoDocs)
     .map(repoDoc => ({
       data: {
-        name: 'create-initial-branch',
+        name: 'bitbucket-event',
+        type: 'create-initial-branch',
         repositoryId: repoDoc._id,
         accountId: repoDoc.accountId
       }

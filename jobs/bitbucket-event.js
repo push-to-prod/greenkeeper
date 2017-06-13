@@ -1,9 +1,12 @@
 const { resolve } = require('path')
 
 module.exports = function ({ type, action }) {
+  console.log('type', type, 'action', action)
   const paths = [__dirname, 'bitbucket-event', type]
   if (action) paths.push(action)
   const requirePath = resolve(...paths)
+
+  console.log(requirePath)
 
   if (!requirePath.startsWith(__dirname)) {
     throw new Error('do not escape jobs folder')
@@ -12,6 +15,7 @@ module.exports = function ({ type, action }) {
   try {
     var handler = require(requirePath)
   } catch (e) {
+    console.log(e)
     if (e.code === 'MODULE_NOT_FOUND') return
 
     throw e

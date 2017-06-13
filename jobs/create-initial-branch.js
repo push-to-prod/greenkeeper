@@ -34,6 +34,9 @@ module.exports = async function ({ repositoryId }) {
 
   const accountId = repoDoc.accountId
   const installation = await installations.get(accountId)
+
+  console.log('installation', installation)
+
   const installationId = installation.installation
 
   if (repoDoc.fork && !repoDoc.hasIssues) return
@@ -65,6 +68,8 @@ module.exports = async function ({ repositoryId }) {
       return dep
     } catch (err) {}
   })
+
+  console.log('deps', dependencies)
 
   dependencies = _(dependencies)
     .filter(Boolean)
