@@ -31,6 +31,7 @@ const fs = require('fs')
 const tempy = require('tempy')
 
 const gkInitialBranchName = 'greenkeeper/initial'
+const trimNewlines = require('trim-newlines')
 
 module.exports = async function ({ repositoryId }) {
   console.log('handling create branch!')
@@ -111,12 +112,16 @@ module.exports = async function ({ repositoryId }) {
     .filter(Boolean)
     .value()
 
+  console.log('oldpackage.json', JSON.stringify(pkg, null, 2))
+
   // update package.json
   dependencies.forEach(({ type, name, newVersion }) => {
     if (!_.get(pkg, [type, name])) return
 
     pkg[type][name] = newVersion
   })
+
+  console.log('new package.json', JSON.stringify(pkg, null, 2))
 
   await createBranch({
     ownerId: accountId,
@@ -141,7 +146,7 @@ module.exports = async function ({ repositoryId }) {
     }
   ]
 
-  await bitbucket.commit.create({
+  const sha = await bitbucket.commit.create({
     tempDir,
     file: tempFile,
     projectName,
@@ -149,4 +154,16 @@ module.exports = async function ({ repositoryId }) {
     branch: gkInitialBranchName,
     files
   })
+
+  // insert repo id
+  await upsert(repositories, `${repoDoc.fullName}:branch:${trimNewlines(sha)}`, {
+    type: 'branch',
+    sha,
+    base: 'master',
+    branch: gkInitialBranchName,
+    accountId,
+    isVersionBranch: false
+  })
+
+  console.log('upserted repo', `${repoDoc.fullName}:branch:${trimNewlines(sha)}`)
 }

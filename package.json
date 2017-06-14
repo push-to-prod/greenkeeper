@@ -31,6 +31,7 @@
     "stream-buffers": "^3.0.1",
     "stripe": "^4.15.1",
     "tempy": "^0.1.0",
+    "trim-newlines": "^2.0.0",
     "utils": "git://github.com/push-to-prod/Utils.git",
     "yml-in-place": "^1.0.2"
   },

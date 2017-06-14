@@ -19,6 +19,7 @@ const bitbucket = require('../../lib/bitbucket')
 const fs = require('fs')
 
 const tempy = require('tempy')
+const trimNewlines = require('trim-newlines')
 
 module.exports = async function (
   {
@@ -133,7 +134,7 @@ module.exports = async function (
       }
     ]
 
-    await bitbucket.commit.create({
+    const sha = await bitbucket.commit.create({
       tempDir,
       file: tempFile,
       projectName,
@@ -143,6 +144,18 @@ module.exports = async function (
       files
     })
 
+    console.log('inserting at', `${repository.fullName}:branch:${sha}`)
+
+    // insert repo id
+    await upsert(repositories, `${repository.fullName}:branch:${trimNewlines(sha)}`, {
+      type: 'branch',
+      sha,
+      base: 'master',
+      branch: newBranch,
+      accountId,
+      isVersionBranch: true,
+      processed: !satisfies
+    })
   } catch (err) {
     // no branch created
     console.error(err)
