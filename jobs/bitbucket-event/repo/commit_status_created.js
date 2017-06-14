@@ -32,20 +32,22 @@ module.exports = async function (data) {
     return
   }
 
+  const {branch, dependency, oldVersion, newVersion} = repoDoc
+
   if (state === 'SUCCESSFUL') {
     if (repoDoc.isVersionBranch) {
       // scheduling create-initial-pr job
       await bitbucket.pullrequest.create(
-        owner, repo_name, 'master', repoDoc.branch, 'The hobbits are going to isengard!'
+        owner, repo_name, 'master', branch, 'The hobbits are going to isengard!'
       )
     } else {
       await bitbucket.pullrequest.create(
-        owner, repo_name, 'master', repoDoc.branch, 'initial pr'
+        owner, repo_name, 'master', branch, 'initial pr'
       )
     }
   } else {
     console.log('ISSUE FAILED')
-    const diffLink = `https://bitbucket.org/${owner}/${repo_name}/branch/${repoDoc.branch}#diff`
+    const diffLink = `https://bitbucket.org/${owner}/${repo_name}/branch/${branch}#diff`
     await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Latest dependency change broke your build 🚨', issueDescription({diffLink}))
   }
 }
