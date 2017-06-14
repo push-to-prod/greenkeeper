@@ -40,6 +40,6 @@ module.exports = async function (data) {
     }
   } else {
     console.log('ISSUE FAILED')
-    await bitbucket.issue.create(owner, repoDoc.branch, 'Greenkeeper: Build failed', '')
+    await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Build failed', '')
   }
 }
