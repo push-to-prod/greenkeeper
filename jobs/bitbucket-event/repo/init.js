@@ -22,8 +22,6 @@ module.exports = async function (data) {
 
   const parsedPackage = JSON.parse(rawPackage)
 
-  console.log('parsed package', parsedPackage)
-
   // create repository document
   const repoDocs = await createDocs({
     repositories: [
@@ -31,8 +29,10 @@ module.exports = async function (data) {
         {
           id: data.uuid,
           full_name: `${data.projectName}/${data.repoName}`,
+          source: 'bitbucket',
           fork: false,
           hasIssues: false,
+          enabled: true, // for now, treat as enabled
           packages: {
             'package.json': parsedPackage
           }
@@ -44,6 +44,7 @@ module.exports = async function (data) {
   })
 
   console.log(repoDocs)
+  console.log(parsedPackage)
 
   // hack: also create an "installation"
   await upsert(

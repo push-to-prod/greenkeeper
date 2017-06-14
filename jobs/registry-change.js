@@ -47,6 +47,8 @@ module.exports = async function (
     key: dependency
   })).rows
 
+
+
   if (!packages.length) return
 
   if (packages.length > 100) statsd.event('popular_package')
@@ -76,10 +78,18 @@ module.exports = async function (
 
     if (isFromHook && String(account.installation) !== installation) return {}
 
-    return {
+    let messageType = {}
+
+    if (pkg.value.source === 'bitbucket') {
+      messageType.name = 'bitbucket-event'
+      messageType.type = 'create-version-branch'
+    } else {
+      messageType.name = 'create-version-branch'
+    }
+
+    let message = {
       data: Object.assign(
         {
-          name: 'create-version-branch',
           dependency,
           distTags,
           distTag,
@@ -89,9 +99,12 @@ module.exports = async function (
           installation: account.installation,
           plan
         },
-        pkg.value
+        pkg.value,
+        messageType
       ),
       plan
     }
+
+    return message
   })
 }

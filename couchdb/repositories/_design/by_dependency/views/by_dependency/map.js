@@ -8,6 +8,7 @@ function (doc) {
       for (var dep in doc.packages[filename][type]) {
         emit(dep, {
           fullName: doc.fullName,
+          source: doc.source,
           accountId: doc.accountId,
           filename: filename,
           type: type,

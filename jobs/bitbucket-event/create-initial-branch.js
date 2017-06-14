@@ -112,7 +112,6 @@ module.exports = async function ({ repositoryId }) {
     .value()
 
   // update package.json
-
   dependencies.forEach(({ type, name, newVersion }) => {
     if (!_.get(pkg, [type, name])) return
 
