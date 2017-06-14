@@ -153,6 +153,9 @@ module.exports = async function (
       base: 'master',
       branch: newBranch,
       accountId,
+      dependency,
+      oldVersion,
+      newVersion: latest,
       isVersionBranch: true,
       processed: !satisfies
     })
