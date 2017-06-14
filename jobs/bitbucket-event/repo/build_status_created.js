@@ -1,7 +1,6 @@
 const bitbucket = require('../../../lib/bitbucket')
 
 module.exports = async function (data) {
-  const { repositories } = await dbs()
   const { commit_status, repository } = data
 
   const { state } = data
