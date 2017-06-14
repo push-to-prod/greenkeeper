@@ -111,7 +111,6 @@ module.exports = async function ({ repositoryId }) {
     .filter(Boolean)
     .value()
 
-
   // update package.json
 
   dependencies.forEach(({ type, name, newVersion }) => {
@@ -151,4 +150,15 @@ module.exports = async function ({ repositoryId }) {
     branch: gkInitialBranchName,
     files
   })
+
+  // scheduling create-initial-pr job
+  return {
+    data: {
+      name: 'bitbucket-event',
+      type: 'create-initial-pr',
+      repositoryId,
+      accountId,
+      fromBranchName: gkInitialBranchName
+    }
+  }
 }
