@@ -45,6 +45,7 @@ module.exports = async function (data) {
     }
   } else {
     console.log('ISSUE FAILED')
-    await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Latest dependency change broke your build 🚨', issueDescription({}))
+    const diffLink = `https://bitbucket.org/${owner}/${repo_name}/branch/${repoDoc.branch}#diff`
+    await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Latest dependency change broke your build 🚨', issueDescription({diffLink}))
   }
 }

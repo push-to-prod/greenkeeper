@@ -20,10 +20,12 @@ ${statuses.map(status => `- ${status.state === 'success' ? '✅' : '❌'} **${st
 </details>
 `
 
-module.exports = ({version, dependencyLink, owner, repo, head, dependency, oldVersionResolved, dependencyType, statuses, release, diffCommits}) => md`
+module.exports = ({diffLink}) => md`
 ## A dependency just got published.
 
 After updating your dependency(ies) to their latest version(s), **the build failed**. '❌'
+
+Check out the dependencies that were changed here: ${diffLink}
 
 ---
 
