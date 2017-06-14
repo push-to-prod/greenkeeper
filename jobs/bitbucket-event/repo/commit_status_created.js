@@ -1,6 +1,7 @@
 const bitbucket = require('../../../lib/bitbucket')
 const dbs = require('../../../lib/dbs')
 const issueDescription = require('../../../content/bitbucket/fail-issue')
+const updatePrDescription = require('../../../content/bitbucket/update-pr')
 
 const handled = {}
 
@@ -36,18 +37,30 @@ module.exports = async function (data) {
 
   if (state === 'SUCCESSFUL') {
     if (repoDoc.isVersionBranch) {
-      // scheduling create-initial-pr job
+      const description = updatePrDescription({newVersion, oldVersion, dependency})
       await bitbucket.pullrequest.create(
-        owner, repo_name, 'master', branch, 'The hobbits are going to isengard!'
+        owner, repo_name, 'master', branch, `Greenkeeper: Version ${newVersion} of ${dependency} has been published! 🌴`, description
       )
     } else {
-      await bitbucket.pullrequest.create(
-        owner, repo_name, 'master', branch, 'initial pr'
-      )
+      // scheduling create-initial-pr job
+      return {
+        data: {
+          name: 'bitbucket-event',
+          type: 'create-initial-pr',
+          commit_status,
+          repository
+        }
+      }
     }
   } else {
     console.log('ISSUE FAILED')
     const diffLink = `https://bitbucket.org/${owner}/${repo_name}/branch/${branch}#diff`
-    await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Latest dependency change broke your build 🚨', issueDescription({diffLink}))
+    const description = issueDescription({diffLink, newVersion, oldVersion, dependency})
+    if (repoDoc.isVersionBranch) {
+      await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Latest dependency change broke your build 🚨', description)
+    } else {
+      await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Initial dependency update broke your build 🚨', description)
+    }
+
   }
 }

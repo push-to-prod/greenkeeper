@@ -20,8 +20,12 @@ ${statuses.map(status => `- ${status.state === 'success' ? '✅' : '❌'} **${st
 </details>
 `
 
-module.exports = ({diffLink}) => md`
-## A dependency just got published.
+module.exports = ({newVersion, oldVersion, dependency, diffLink}) => {
+  let result = ''
+  if (newVersion || oldVersion) {
+    result += md`**${dependency}** just published version **${newVersion}** (was ${oldVersion})`
+  }
+  result += md`
 
 After updating your dependency(ies) to their latest version(s), **the build failed**. '❌'
 
@@ -38,3 +42,5 @@ There is a collection of [frequently asked questions](https://greenkeeper.io/faq
 
 Your [Greenkeeper](https://greenkeeper.io) Bot :palm_tree:
 `
+  return result
+}
