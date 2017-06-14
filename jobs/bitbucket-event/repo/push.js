@@ -1,6 +1,8 @@
 const minDate = new Date(-1000)
 
 module.exports = async function (data) {
+  // not used.
+  return
   const { repositories } = await dbs()
   const { push, repository } = data
 

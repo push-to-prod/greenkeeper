@@ -1,19 +1,13 @@
-const dbs = require('../../lib/dbs')
 const bitbucket = require('../../lib/bitbucket')
 
-module.exports = async function ({ repositoryId, fromBranchName }) {
+module.exports = async function ({ commit_status, repository }) {
   console.log('handling create initial pr')
+  const [owner, repo] = repository.full_name.split('/')
 
-  const { installations, repositories } = await dbs()
-
-  const repodoc = await repositories.get(repositoryId)
-  const accountId = repodoc.accountId
-  const installation = await installations.get(accountId)
-  const installationId = installation.installation
-
-  const [owner, repo] = repodoc.fullName.split('/')
+  // Would be better to look up, but should always be the same for initial pr
+  const initialGkBranchName = 'greenkeeper/initial'
 
   await bitbucket.pullrequest.create(
-    owner, repo, 'master', fromBranchName, 'The hobbits are going to isengard!'
+    owner, repo, 'master', initialGkBranchName, 'The hobbits are going to isengard!'
   )
 }
