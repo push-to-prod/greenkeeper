@@ -2,6 +2,8 @@ const bitbucket = require('../../../lib/bitbucket')
 const dbs = require('../../../lib/dbs')
 const issueDescription = require('../../../content/bitbucket/fail-issue')
 
+const handled = {}
+
 module.exports = async function (data) {
   const { repositories } = await dbs()
   const { commit_status, repository } = data
@@ -17,6 +19,8 @@ module.exports = async function (data) {
   const { hash } = JSON.parse(await bitbucket.request.get(commit_status.links.commit.href))
   console.log('hash', hash)
   const id = `${owner}/${repo_name}:branch:${hash}`
+  if (handled[id]) return
+  handled[id] = true
 
   console.log('getting repo by id', id)
   const repoDoc = await repositories.get(id)
@@ -41,6 +45,6 @@ module.exports = async function (data) {
     }
   } else {
     console.log('ISSUE FAILED')
-    await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Latest dependency change broke your build 🚨', issueDescription())
+    await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Latest dependency change broke your build 🚨', issueDescription({}))
   }
 }
