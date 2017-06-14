@@ -1,5 +1,6 @@
 const bitbucket = require('../../../lib/bitbucket')
 const dbs = require('../../../lib/dbs')
+const issueDescription = require('../../../content/bitbucket/fail-issue')
 
 module.exports = async function (data) {
   const { repositories } = await dbs()
@@ -40,6 +41,6 @@ module.exports = async function (data) {
     }
   } else {
     console.log('ISSUE FAILED')
-    await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Build failed', '')
+    await bitbucket.issue.create(owner, repo_name, 'Greenkeeper: Latest dependency change broke your build 🚨', issueDescription())
   }
 }
